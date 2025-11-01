@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>hello bimo</title>
+
+    
+    <script>
+
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        float: 'float 6s ease-in-out infinite',
+                        pulse: 'pulse 4s cubic-bezier(.4,0,.6,1) infinite',
+                        spin: 'spin 20s linear infinite',
+                        glow: 'glow 2s ease-in-out infinite alternate',
+                        bounce: 'bounce 2s infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        glow: {
+                            '0%': { textShadow: '0 0 10px #fff, 0 0 20px #fff, 0 0 30px #0f8, 0 0 40px #0f8' },
+                            '100%': { textShadow: '0 0 20px #fff, 0 0 30px #fff, 0 0 40px #0f8, 0 0 50px #0f8' }
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            background: radial-gradient(circle at center, #0a0a1f, #000);
+            color: #fff;
+            font-family: sans-serif;
+            overflow-x: hidden;
+            touch-action: pan-y
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem
+        }
+
+        .text-3d {
+            perspective: 1000px;
+            text-align: center;
+            width: 100%
+        }
+
+        .letter {
+            display: inline-block;
+            font-weight: 900;
+            font-size: clamp(2.5rem, 12vw, 8rem);
+            background: linear-gradient(45deg, #0f8, #0df, #f0f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 255, 136, .5);
+            transform-style: preserve-3d;
+            animation: float 6s ease-in-out infinite
+        }
+
+        .glow-btn {
+            padding: clamp(0.8rem, 3vw, 1rem) clamp(1.5rem, 6vw, 2rem);
+            font-size: clamp(0.9rem, 4vw, 1.2rem);
+            font-weight: bold;
+            border: 2px solid #0f8;
+            background: rgba(0, 255, 136, .1);
+            color: #0f8;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all .4s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 136, .4)
+        }
+
+        .glow-btn:hover {
+            background: #0f8;
+            color: #000;
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(0, 255, 136, .8)
+        }
+
+        .canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none
+        }
+
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(transparent, #0f8);
+            opacity: .1;
+            animation: wave 10s linear infinite
+        }
+
+        @keyframes wave {
+            0% {
+                transform: translateX(0)
+            }
+
+            100% {
+                transform: translateX(-50%)
+            }
+        }
+
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: #0f8;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform .1s ease
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 255, 136, .4);
+            transform: scale(0);
+            animation: ripple .6s ease-out;
+            pointer-events: none
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0
+            }
+        }
+    </style>
+    <style>
+
+        .site-footer {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: clamp(10px, 2vmin, 14px) 1rem;
+            font-size: clamp(.72rem, 1.5vmin, 1rem);
+            color: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(6px);
+        }
+
+        .site-footer a {
+            color: #0f8;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .site-footer a:hover {
+            color: #0df;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cursor" id="cursor"></div>
+    <div id="particles-js"></div>
+    <div class="canvas-container"><canvas id="three-canvas"></canvas></div>
+    <div class="wave"></div>
+    <div class="container">
+          <h1 class="text-3d">
+                <span class="letter" data-char="H">H</span>
+                <span class="letter" data-char="E">E</span>
+                <span class="letter" data-char="L">L</span>
+                <span class="letter" data-char="L">L</span>
+                <span class="letter" data-char="O">O</span>
+                <span class="letter" data-char=" "> </span>
+                <span class="letter" data-char="W">W</span>
+                <span class="letter" data-char="O">O</span>
+                <span class="letter" data-char="R">R</span>
+                <span class="letter" data-char="L">L</span>
+                <span class="letter" data-char="D">D</span>
+              </h1>
+          <button class="glow-btn" id="magic-btn">🚀</button>
+    </div>
+    <script>
+
+        const cursor = document.getElementById('cursor'); document.addEventListener('mousemove', e => { cursor.style.transform = `translate(${e.clientX - 10}px,${e.clientY - 10}px)` });
+
+        document.addEventListener('click', e => { const r = document.createElement('div'); r.classList.add('ripple'); r.style.left = `${e.clientX - 25}px`; r.style.top = `${e.clientY - 25}px`; r.style.width = r.style.height = '50px'; document.body.appendChild(r); setTimeout(() => r.remove(), 600) });
+
+        particlesJS('particles-js', { particles: { number: { value: 80, density: { enable: true, value_area: 800 } }, color: { value: '#0f8' }, shape: { type: 'circle' }, opacity: { value: .5, random: true }, size: { value: 3, random: true }, line_linked: { enable: true, distance: 150, color: '#0f8', opacity: .2, width: 1 }, move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false } }, interactivity: { detect_on: 'canvas', events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' }, resize: true }, modes: { repulse: { distance: 100, duration: .4 }, push: { particles_nb: 4 } } }, retina_detect: true });
+
+        const canvas = document.getElementById('three-canvas'); const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true }); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(window.devicePixelRatio); const scene = new THREE.Scene();
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 1000);
+        let initialAspect = window.innerWidth / window.innerHeight;
+        camera.position.z = initialAspect < 1 ? 6 : 5; 
+
+        const geometry = new THREE.TorusKnotGeometry(1, .3, 128, 16); const material = new THREE.MeshBasicMaterial({ color: 0x00ff88, wireframe: true }); const torus = new THREE.Mesh(geometry, material); scene.add(torus); const light = new THREE.AmbientLight(0x404040); scene.add(light);
+        function animate() { requestAnimationFrame(animate); torus.rotation.x += .01; torus.rotation.y += .01; renderer.render(scene, camera) } animate();
+
+        window.addEventListener('resize', () => {
+            let aspect = window.innerWidth / window.innerHeight;
+            camera.aspect = aspect;
+            camera.position.z = aspect < 1 ? 6 : 5; 
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.style.height = window.innerHeight + 'px'; 
+        });
+
+        gsap.registerPlugin(ScrollTrigger, TextPlugin); const letters = document.querySelectorAll('.letter');
+
+        letters.forEach((l, i) => gsap.from(l, { y: '50vh', opacity: 0, rotationX: -180, duration: 1, delay: i * .1, ease: "back.out(1.7)" }));
+        const btn = document.getElementById('magic-btn');
+
+        btn.addEventListener('click', () => { gsap.to(letters, { scale: 1.5, yoyo: true, repeat: 1, duration: .3, stagger: .05, ease: "power2.inOut" }); gsap.to(btn, { rotation: 360, scale: 1.3, background: "#f0f", color: "white", duration: .5, onComplete: () => { btn.style.background = "rgba(0,255,136,.1)"; btn.style.color = "#0f8" } }); for (let i = 0; i < 50; i++) { const c = document.createElement('div'); c.style.position = 'fixed'; c.style.left = Math.random() * 100 + 'vw'; c.style.top = '-10px'; c.style.width = c.style.height = '10px'; c.style.background = ['#0f8', '#0df', '#f0f'][Math.floor(Math.random() * 3)]; c.style.borderRadius = '50%'; c.style.zIndex = '999'; document.body.appendChild(c); gsap.to(c, { y: window.innerHeight + 50, rotation: Math.random() * 720, duration: Math.random() * 3 + 2, ease: "power1.in", onComplete: () => c.remove() }) } });
+
+        let touchX = 0; document.addEventListener('touchstart', e => touchX = e.touches[0].clientX); document.addEventListener('touchmove', e => { const d = e.touches[0].clientX - touchX; if (Math.abs(d) > 50) { gsap.to(torus.rotation, { y: `+=${d / 10}`, duration: 1 }); touchX = e.touches[0].clientX } });
+
+        setInterval(() => { const s = document.createElement('div'); s.innerHTML = '*'; s.style.position = 'fixed'; s.style.left = Math.random() * 100 + 'vw'; s.style.top = Math.random() * 100 + 'vh'; s.style.fontSize = '20px'; s.style.pointerEvents = 'none'; s.style.zIndex = '100'; s.style.animation = 'float 3s ease-in-out forwards'; document.body.appendChild(s); setTimeout(() => s.remove(), 3000) }, 800);
+
+        letters.forEach(l => { l.addEventListener('mouseenter', () => gsap.to(l, { rotationY: 180, duration: .6, ease: "power2.inOut" })); l.addEventListener('mouseleave', () => gsap.to(l, { rotationY: 0, duration: .6, ease: "power2.inOut" })) });
+
+        btn.addEventListener('click', () => { if ('vibrate' in navigator) navigator.vibrate([100, 50, 100]) });
+
+        document.addEventListener('dblclick', () => { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen() });
+
+        gsap.to('body', { backgroundPositionY: '100%', ease: "none", scrollTrigger: { trigger: "body", start: "top top", end: "+=5000", scrub: 1 } });
+        console.log("%cHELLO WORLD", "color:#0f8;font-size:20px;font-weight:bold"); window.hello = () => alert("HELLO WORLD");
+    </script>
+    <footer class="site-footer" role="contentinfo">
+        <div>© <a href="https://bimoarifw.me" target="_blank" rel="noopener noreferrer">hello.bimoarifw.me</a></div>
+    </footer>
+</body>
+
+</html>
