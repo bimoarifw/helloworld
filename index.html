@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>hello bimo</title>
 
-    
+
     <script>
 
         window.tailwind = window.tailwind || {};
@@ -35,7 +35,7 @@
         };
     </script>
 
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -176,7 +176,6 @@
         }
     </style>
     <style>
-
         .site-footer {
             position: relative;
             z-index: 10;
@@ -227,24 +226,39 @@
 
         document.addEventListener('click', e => { const r = document.createElement('div'); r.classList.add('ripple'); r.style.left = `${e.clientX - 25}px`; r.style.top = `${e.clientY - 25}px`; r.style.width = r.style.height = '50px'; document.body.appendChild(r); setTimeout(() => r.remove(), 600) });
 
-        particlesJS('particles-js', { particles: { number: { value: 80, density: { enable: true, value_area: 800 } }, color: { value: '#0f8' }, shape: { type: 'circle' }, opacity: { value: .5, random: true }, size: { value: 3, random: true }, line_linked: { enable: true, distance: 150, color: '#0f8', opacity: .2, width: 1 }, move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false } }, interactivity: { detect_on: 'canvas', events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' }, resize: true }, modes: { repulse: { distance: 100, duration: .4 }, push: { particles_nb: 4 } } }, retina_detect: true });
+        // slightly reduced particle count to lower CPU on single-file demo
+        particlesJS('particles-js', { particles: { number: { value: 40, density: { enable: true, value_area: 800 } }, color: { value: '#0f8' }, shape: { type: 'circle' }, opacity: { value: .5, random: true }, size: { value: 3, random: true }, line_linked: { enable: true, distance: 150, color: '#0f8', opacity: .2, width: 1 }, move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false } }, interactivity: { detect_on: 'canvas', events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' }, resize: true }, modes: { repulse: { distance: 100, duration: .4 }, push: { particles_nb: 4 } } }, retina_detect: true });
 
         const canvas = document.getElementById('three-canvas'); const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true }); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(window.devicePixelRatio); const scene = new THREE.Scene();
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 1000);
         let initialAspect = window.innerWidth / window.innerHeight;
-        camera.position.z = initialAspect < 1 ? 6 : 5; 
+        camera.position.z = initialAspect < 1 ? 6 : 5;
 
         const geometry = new THREE.TorusKnotGeometry(1, .3, 128, 16); const material = new THREE.MeshBasicMaterial({ color: 0x00ff88, wireframe: true }); const torus = new THREE.Mesh(geometry, material); scene.add(torus); const light = new THREE.AmbientLight(0x404040); scene.add(light);
-        function animate() { requestAnimationFrame(animate); torus.rotation.x += .01; torus.rotation.y += .01; renderer.render(scene, camera) } animate();
+        // Respect visibility and reduced-motion preferences to save CPU
+        let isVisible = document.visibilityState === 'visible';
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        document.addEventListener('visibilitychange', () => { isVisible = document.visibilityState === 'visible'; });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (!isVisible) return; // pause heavy updates when tab is hidden
+            if (!reduceMotion) {
+                torus.rotation.x += .01;
+                torus.rotation.y += .01;
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
 
         window.addEventListener('resize', () => {
             let aspect = window.innerWidth / window.innerHeight;
             camera.aspect = aspect;
-            camera.position.z = aspect < 1 ? 6 : 5; 
+            camera.position.z = aspect < 1 ? 6 : 5;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.style.height = window.innerHeight + 'px'; 
+            document.body.style.height = window.innerHeight + 'px';
         });
 
         gsap.registerPlugin(ScrollTrigger, TextPlugin); const letters = document.querySelectorAll('.letter');
@@ -256,7 +270,8 @@
 
         let touchX = 0; document.addEventListener('touchstart', e => touchX = e.touches[0].clientX); document.addEventListener('touchmove', e => { const d = e.touches[0].clientX - touchX; if (Math.abs(d) > 50) { gsap.to(torus.rotation, { y: `+=${d / 10}`, duration: 1 }); touchX = e.touches[0].clientX } });
 
-        setInterval(() => { const s = document.createElement('div'); s.innerHTML = '*'; s.style.position = 'fixed'; s.style.left = Math.random() * 100 + 'vw'; s.style.top = Math.random() * 100 + 'vh'; s.style.fontSize = '20px'; s.style.pointerEvents = 'none'; s.style.zIndex = '100'; s.style.animation = 'float 3s ease-in-out forwards'; document.body.appendChild(s); setTimeout(() => s.remove(), 3000) }, 800);
+        // star effect (less frequent for perf)
+        setInterval(() => { const s = document.createElement('div'); s.innerHTML = '*'; s.style.position = 'fixed'; s.style.left = Math.random() * 100 + 'vw'; s.style.top = Math.random() * 100 + 'vh'; s.style.fontSize = '20px'; s.style.pointerEvents = 'none'; s.style.zIndex = '100'; s.style.animation = 'float 3s ease-in-out forwards'; document.body.appendChild(s); setTimeout(() => s.remove(), 3000) }, 1400);
 
         letters.forEach(l => { l.addEventListener('mouseenter', () => gsap.to(l, { rotationY: 180, duration: .6, ease: "power2.inOut" })); l.addEventListener('mouseleave', () => gsap.to(l, { rotationY: 0, duration: .6, ease: "power2.inOut" })) });
 
